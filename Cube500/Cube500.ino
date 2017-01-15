@@ -9,10 +9,6 @@
 #include "cylon.h"
 #include "flag.h"
 
-int buttonState1 = 0;         // variable for reading the pushbutton status
-int buttonState2 = 0;         // variable for reading the pushbutton status
-int buttonState3 = 0;         // variable for reading the pushbutton status
-
 // This function sets up the ledsand tells the controller about them
 void setup() {
   setup_common();
@@ -21,41 +17,24 @@ void setup() {
   setup_cylon();
   setup_flag();
   clear_strip();
-  pinMode(17,INPUT);
+
 
 }
 
 // This function runs over and over, and is where you do the magic to light
 // your leds.
 void loop() {
-loop_demo1();
+//loop_demo1();
 // clear_strip();
 //
-loop_cylon();
+//loop_cylon();
 // clear_strip();
 
-loop_flag();
+//loop_flag();
 //clear_strip();
-  buttonState1 = digitalRead(16);
-  buttonState2 = digitalRead(17);
-  buttonState3 = digitalRead(20);
 
-  if (buttonState1 == HIGH) {     
-    // turn LED on:    
-    //digitalWrite(17, HIGH); 
-    Serial.println("BTN 17"); 
-  } 
-  if (buttonState2 == HIGH) {     
-    // turn LED on:    
-    //digitalWrite(17, HIGH); 
-    Serial.println("BTN 16"); 
-  } 
-    if (buttonState3 == HIGH) {     
-    // turn LED on:    
-    //digitalWrite(17, HIGH); 
-    Serial.println("BTN 20"); 
-  } 
-  delay(10);
+  read_button();
+  //delay(10);
 
 
 }
