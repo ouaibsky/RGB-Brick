@@ -1,7 +1,7 @@
-//#include <LEDMatrix.h>
-//#include <ESP8266WiFi.h>
-
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
+//#include <SPI.h>
+//#include <Ethernet.h>
+//#include <EthernetUdp.h>
 
 //needed for library
 #include <DNSServer.h>
@@ -14,27 +14,14 @@
 Ticker ticker;
 
 #define teensy Serial
+// Change AP_NAME to avoid having twice equals on same network
+#define AP_NAME "ICROCO_CUBE_01"
+// Change udp port if you wanna listen/sent on something else
+#define UDP_PORT 4321
 
 //######### WiFi
-//const char* ssid = "ssid name";
-//const char* password = "enter_passwd";
-IPAddress IP(0, 0, 0, 0);
-IPAddress local;
-
-
-int broadcast = 255;
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE];
-const int port = 4321;
 WiFiUDP udp;
-
-int pieper = 4;
-#define PIEPER_ACTIVE false
-#define PIEPER_ACTIVE_ONCE true
-boolean firstRun = true;
-
-int destPort = port;
-IPAddress destIP = IP;
-
+char incomingPacket[255];  // buffer for incoming packets
 
 void tick()
 {
@@ -74,7 +61,7 @@ void setup() {
   //if it does not connect it starts an access point with the specified name
   //here  "AutoConnectAP"
   //and goes into a blocking loop awaiting configuration
-  if (!wifiManager.autoConnect("ICROCO_CUBE_01")) {
+  if (!wifiManager.autoConnect(AP_NAME)) {
     Serial.println("failed to connect and hit timeout");
     //reset and try again, or maybe put it to deep sleep
     ESP.reset();
@@ -84,28 +71,22 @@ void setup() {
   //if you get here you have connected to the WiFi
   Serial.println("connected...yeey :)");
   ticker.detach();
+  
   //keep LED on
-  digitalWrite(BUILTIN_LED, LOW);
-
-  if (PIEPER_ACTIVE || PIEPER_ACTIVE_ONCE) pinMode(pieper, OUTPUT);
-  if (PIEPER_ACTIVE || PIEPER_ACTIVE_ONCE) digitalWrite(pieper, LOW);
-
-  local = connectToHomeNetwork();
-
-  teensy.println(local);
-
-  udp.begin(port);
+  digitalWrite(BUILTIN_LED, HIGH);
 
   teensy.setTimeout(80);
+  udp.begin(UDP_PORT);
+  Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), UDP_PORT);
 }//end setup
 
 long t1 = millis();
 
 void loop() {
   int packetSize = udp.parsePacket();
+
   if (packetSize) {
-    destPort = udp.remotePort();
-    destIP = udp.remoteIP();
+    //Serial.printf("Received %d bytes from %s, port %d\n", packetSize, udp.remoteIP().toString().c_str(), udp.remotePort());
     handleIncoming(readUdp());
   }
 
@@ -126,27 +107,24 @@ void handleIncoming(String incoming) {
 }//end handleIncoming()
 
 void handleTeensy(String incoming) {
-  sendUdp(destIP, destPort, incoming);
+  sendUdp(udp.remoteIP(), udp.remotePort(), incoming);
 }//end void handleTeensy()
 
 
 String readUdp() {
-  if (PIEPER_ACTIVE) digitalWrite(pieper, HIGH);
-  if (PIEPER_ACTIVE_ONCE && firstRun) digitalWrite(pieper, HIGH);
+  int len = udp.read(incomingPacket, UDP_TX_PACKET_MAX_SIZE);
+    if (len > 0)
+    {
+      incomingPacket[len] = 0;
+    }
+   Serial.printf("UDP packet contents: %s\n", incomingPacket);
+   String reply = String(incomingPacket);
 
-  udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-  String reply = String(packetBuffer);
-  for (int i = 0; i < UDP_TX_PACKET_MAX_SIZE; i++) packetBuffer[i] = 0;
-
-  if (PIEPER_ACTIVE || (PIEPER_ACTIVE_ONCE && firstRun)) delay(30);
-  if (PIEPER_ACTIVE) digitalWrite(pieper, LOW);
-  if (PIEPER_ACTIVE_ONCE && firstRun) digitalWrite(pieper, LOW);
-  firstRun = false;
   return reply;
 }//end String readUdp()
 
 void sendUdp(int ip, String command) {
-  udp.beginPacket(ip, port);
+  udp.beginPacket(ip, UDP_PORT);
   udp.print(command);
   udp.endPacket();
 }//end void sendUdp()
@@ -157,20 +135,4 @@ void sendUdp(IPAddress ip, int port, String command) {
   udp.endPacket();
 }//end void sendUdp()
 
-IPAddress connectToHomeNetwork() {
-  // Connect to WiFi network
-  //  IPAddress ip;
-  //  WiFi.begin(ssid, password);
-  //
-  //  long t = millis();
-  //  while (WiFi.status() != WL_CONNECTED) {
-  //    delay(200);
-  //    if (millis() >= t + 8000)
-  //    {
-  //      ip = (0, 0, 0, 0);
-  //      return ip;
-  //    }
-  //  }
-  return WiFi.localIP();
-}//end void connectToHomenetwork()
 
