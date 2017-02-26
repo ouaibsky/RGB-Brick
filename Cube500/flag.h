@@ -5,11 +5,11 @@ void setup_flag() {
 }
 
 void flag_france_side() {
-  for (int x = 0 ; x < CUBE_WIDTH; x++) {
+  //for (int x = 0 ; x < CUBE_WIDTH; x++) {
     mLeds_side.DrawFilledRectangle(0, 0, 2, 9, CRGB::Blue);
     mLeds_side.DrawFilledRectangle(3, 0, 6, 9, CRGB::White);
     mLeds_side.DrawFilledRectangle(7, 0, 9, 9, CRGB::Red);
-  }
+  //}
 }
 
 void flag_france_top() {

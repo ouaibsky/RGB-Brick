@@ -30,8 +30,8 @@ void loop() {
 //loop_cylon();
 // clear_strip();
 
-//loop_flag();
-//clear_strip();
+loop_flag();
+clear_strip();
 
   read_button();
   //delay(10);
