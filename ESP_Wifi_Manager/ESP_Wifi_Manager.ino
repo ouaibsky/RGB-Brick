@@ -15,7 +15,7 @@ Ticker ticker;
 
 #define teensy Serial
 // Change AP_NAME to avoid having twice equals on same network
-#define AP_NAME "ICROCO_CUBE_01"
+#define AP_NAME "ICROCO_CUBE_06"
 // Change udp port if you wanna listen/sent on something else
 #define UDP_PORT 4321
 
@@ -52,7 +52,7 @@ void setup() {
   //Local intialization. Once its business is done, there is no need to keep it around
   WiFiManager wifiManager;
   //reset settings - for testing
-  //wifiManager.resetSettings();
+  wifiManager.resetSettings();
 
   //set callback that gets called when connecting to previous WiFi fails, and enters Access Point mode
   wifiManager.setAPCallback(configModeCallback);

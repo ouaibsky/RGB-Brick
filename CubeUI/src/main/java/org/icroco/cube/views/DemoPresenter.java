@@ -23,6 +23,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import org.icroco.cube.CubeApplication;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+
 public class DemoPresenter {
     @FXML
     private View demo;
@@ -31,6 +37,7 @@ public class DemoPresenter {
         demo.setShowTransitionFactory(BounceInRightTransition::new);
 
         demo.showingProperty().addListener((obs, oldValue, newValue) -> {
+            System.out.println(MobileApplication.getInstance().getClass().getName());
             if (newValue) {
                 AppBar appBar = MobileApplication.getInstance().getAppBar();
                 appBar.setNavIcon(MaterialDesignIcon.MENU.button(e ->
@@ -42,5 +49,19 @@ public class DemoPresenter {
 
     public void onNext(ActionEvent actionEvent) {
         System.out.println("Next Demo -> Send Animation");
+        try {
+            ((CubeApplication) MobileApplication.getInstance()).getParameters();
+            DatagramSocket socket = new DatagramSocket();
+            InetAddress address = InetAddress.getByName("192.168.0.66");
+            byte buf[] = "Animation".getBytes();
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4321);
+            socket.send(packet);
+
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

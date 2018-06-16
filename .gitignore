@@ -1,2 +1,9 @@
 **/.DS_Store
 ESP_Wifi_Manager/stino.settings
+Cube500/.project
+CubeUI/.gradle
+CubeUI/.idea
+CubeUI/build
+CubeUI/gradle
+CubeUI/out
+ESP_Wifi_Manager/.project
